@@ -2,7 +2,12 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+
 output/*
+!output/.gitkeep
+
 reports/*
+!reports/.gitkeep
+
 config/portals.json
 .env
