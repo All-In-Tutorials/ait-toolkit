@@ -1,52 +1,6 @@
 
 from playwright.sync_api import sync_playwright
-
-
-def inspect_portal(page):
-    elements = page.locator(
-        "input, button, select, textarea, a"
-    ).evaluate_all("""
-        elements => elements.map((el, index) => ({
-            index: index + 1,
-            tag: el.tagName.toLowerCase(),
-            type: el.getAttribute('type') || '',
-            name: el.getAttribute('name') || '',
-            id: el.id || '',
-            className: typeof el.className === 'string'
-                ? el.className : '',
-            text: (el.innerText || el.value || '').trim(),
-            placeholder: el.getAttribute('placeholder') || '',
-            href: el.getAttribute('href') || ''
-        }))
-    """)
-
-    print("\\n========== PORTAL INSPECTION ==========")
-
-    for item in elements:
-        description = (
-            item["text"]
-            or item["placeholder"]
-            or item["name"]
-            or "(no label)"
-        )
-
-        print(
-            f'[{item["index"]}] '
-            f'{item["tag"]} | '
-            f'{item["type"]} | '
-            f'{description}'
-        )
-
-        if item["name"]:
-            print(f'    name="{item["name"]}"')
-
-        if item["id"]:
-            print(f'    id="{item["id"]}"')
-
-        if item["className"]:
-            print(f'    class="{item["className"]}"')
-
-    print("\\n========== INSPECTION COMPLETE ==========")
+from .element_detector import inspect_page, print_inspection
 
 
 def main():
@@ -65,16 +19,24 @@ def main():
         page = browser.new_page()
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            # Open the authorized portal.
+            page.goto(
+                url,
+                wait_until="domcontentloaded",
+                timeout=30000
+            )
 
+            # Allow manual inspection before collecting DOM data.
             input(
-                "\\nInspect the loaded page in Chrome. "
+                "\nInspect the loaded page in Chrome. "
                 "Press ENTER here when ready..."
             )
 
-            inspect_portal(page)
+            # Collect and display DOM information.
+            results = inspect_page(page)
+            print_inspection(results)
 
-            input("\\nPress ENTER to close Chrome...")
+            input("\nPress ENTER to close Chrome...")
 
         except Exception as error:
             print("Inspection error:", error)
