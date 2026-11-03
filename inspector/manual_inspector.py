@@ -1,6 +1,7 @@
 
 from playwright.sync_api import sync_playwright
 from .element_detector import inspect_page, print_inspection
+from .candidate_detector import detect_candidates, print_candidates
 
 
 def main():
@@ -35,6 +36,9 @@ def main():
             # Collect and display DOM information.
             results = inspect_page(page)
             print_inspection(results)
+
+            candidates = detect_candidates(results)
+            print_candidates(candidates)
 
             input("\nPress ENTER to close Chrome...")
 
